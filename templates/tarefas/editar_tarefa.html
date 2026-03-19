@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Editar tarefa{% endblock %}
+
+{% block content %}
+    <div class="topbar">
+        <div>
+            <h1>Editar tarefa</h1>
+            <p>Atualize os dados da tarefa selecionada.</p>
+        </div>
+        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Voltar</a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar alteracoes</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Tarefas{% endblock %}
+
+{% block content %}
+    <div class="topbar">
+        <div>
+            <h1>Minhas tarefas</h1>
+            <p>Base inicial para seu CRUD com Django.</p>
+        </div>
+        <a class="btn" href="{% url 'tarefas:criar' %}">Nova tarefa</a>
+    </div>
+
+    {% if tasks %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Descricao</th>
+                    <th>Status</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.titulo }}</td>
+                        <td>{{ task.descricao|default:"Sem descricao" }}</td>
+                        <td>
+                            {% if task.concluida %}
+                                <span class="status status-ok">Concluida</span>
+                            {% else %}
+                                <span class="status status-pendente">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <a class="btn" href="{% url 'tarefas:detalhe' task.pk %}">Detalhes</a>
+                            <a class="btn btn-secondary" href="{% url 'tarefas:editar' task.pk %}">Editar</a>
+                            <form class="inline-form" method="post" action="{% url 'tarefas:alternar_status' task.pk %}">
+                                {% csrf_token %}
+                                {% if task.concluida %}
+                                    <button class="btn btn-warning" type="submit">Marcar pendente</button>
+                                {% else %}
+                                    <button class="btn btn-success" type="submit">Marcar concluida</button>
+                                {% endif %}
+                            </form>
+                            <a class="btn btn-danger" href="{% url 'tarefas:excluir' task.pk %}">Excluir</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhuma tarefa cadastrada ainda.</p>
+    {% endif %}
+{% endblock %}

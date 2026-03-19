@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Detalhes da tarefa{% endblock %}
+
+{% block content %}
+    <div class="topbar">
+        <div>
+            <h1>Detalhes da tarefa</h1>
+            <p>Visualize os dados completos da tarefa.</p>
+        </div>
+        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Voltar</a>
+    </div>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Titulo</th>
+                <td>{{ task.titulo }}</td>
+            </tr>
+            <tr>
+                <th>Descricao</th>
+                <td>{{ task.descricao|default:"Sem descricao" }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>
+                    {% if task.concluida %}
+                        <span class="status status-ok">Concluida</span>
+                    {% else %}
+                        <span class="status status-pendente">Pendente</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Criada em</th>
+                <td>{{ task.criada_em|date:"d/m/Y H:i" }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="actions mt-16">
+        <a class="btn btn-secondary" href="{% url 'tarefas:editar' task.pk %}">Editar</a>
+        <form class="inline-form" method="post" action="{% url 'tarefas:alternar_status' task.pk %}">
+            {% csrf_token %}
+            {% if task.concluida %}
+                <button class="btn btn-warning" type="submit">Marcar pendente</button>
+            {% else %}
+                <button class="btn btn-success" type="submit">Marcar concluida</button>
+            {% endif %}
+        </form>
+        <a class="btn btn-danger" href="{% url 'tarefas:excluir' task.pk %}">Excluir</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Tarefa{% endblock %}
+
+{% block content %}
+    <div class="topbar">
+        <div>
+            <h1>
+                {% if object %}
+                    Editar tarefa
+                {% else %}
+                    Nova tarefa
+                {% endif %}
+            </h1>
+            <p>Preencha os dados abaixo.</p>
+        </div>
+        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Voltar</a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar</button>
+    </form>
+{% endblock %}
