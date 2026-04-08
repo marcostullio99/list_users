@@ -8,7 +8,7 @@ class Task(models.Model):
     criada_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["concluida", "-criada_em"]
+        ordering = ["-criada_em"]
         verbose_name = "Tarefa"
         verbose_name_plural = "Tarefas"
 

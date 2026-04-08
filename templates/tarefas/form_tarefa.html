@@ -1,25 +1,40 @@
-{% extends "base.html" %}
-
-{% block title %}Formulario de Tarefa{% endblock %}
-
-{% block content %}
-    <div class="topbar">
-        <div>
-            <h1>
-                {% if object %}
-                    Editar tarefa
-                {% else %}
-                    Nova tarefa
-                {% endif %}
-            </h1>
-            <p>Preencha os dados abaixo.</p>
-        </div>
-        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Voltar</a>
-    </div>
-
-    <form method="post">
+<section class="surface surface-pad">
+    <form class="form" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Salvar</button>
+
+        {% if form.non_field_errors %}
+            <ul class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-row">
+                {% if field.field.widget.input_type == "checkbox" %}
+                    <label class="check-control" for="{{ field.id_for_label }}">
+                        {{ field }}
+                        <span>{{ field.label }}</span>
+                    </label>
+                {% else %}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <a class="btn btn-ghost" href="{% url 'tarefas:lista' %}">Cancelar</a>
+            <button class="btn btn-primary" type="submit">{{ submit_label|default:"Salvar" }}</button>
+        </div>
     </form>
-{% endblock %}
+</section>

@@ -3,17 +3,13 @@
 {% block title %}Editar tarefa{% endblock %}
 
 {% block content %}
-    <div class="topbar">
+    <section class="page-head">
         <div>
-            <h1>Editar tarefa</h1>
-            <p>Atualize os dados da tarefa selecionada.</p>
+            <h1 class="page-title">Editar tarefa</h1>
+            <p class="page-subtitle">Atualize os campos para manter sua organizacao sempre atualizada.</p>
         </div>
-        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Voltar</a>
-    </div>
+        <a class="btn btn-ghost" href="{% url 'tarefas:lista' %}">Voltar para lista</a>
+    </section>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Salvar alteracoes</button>
-    </form>
+    {% include "tarefas/form_tarefa.html" with submit_label="Salvar alteracoes" %}
 {% endblock %}

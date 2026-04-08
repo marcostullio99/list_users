@@ -3,54 +3,109 @@
 {% block title %}Lista de Tarefas{% endblock %}
 
 {% block content %}
-    <div class="topbar">
+    <section class="page-head">
         <div>
-            <h1>Minhas tarefas</h1>
-            <p>Base inicial para seu CRUD com Django.</p>
+            <h1 class="page-title">Minhas Tarefas</h1>
+            <p class="page-subtitle">Organize seu dia com um fluxo simples!</p>
         </div>
-        <a class="btn" href="{% url 'tarefas:criar' %}">Nova tarefa</a>
-    </div>
+        <a class="btn btn-primary" href="{% url 'tarefas:criar' %}">Cadastrar nova</a>
+    </section>
+
+    <section class="metrics-grid">
+        <article class="surface surface-pad metric-card">
+            <p class="metric-label">Total</p>
+            <p class="metric-value">{{ total_tasks }}</p>
+        </article>
+        <article class="surface surface-pad metric-card">
+            <p class="metric-label">Concluidas</p>
+            <p class="metric-value">{{ total_done }}</p>
+        </article>
+        <article class="surface surface-pad metric-card">
+            <p class="metric-label">Pendentes</p>
+            <p class="metric-value">{{ total_pending }}</p>
+        </article>
+        <article class="surface surface-pad metric-card">
+            <p class="metric-label">Resultados</p>
+            <p class="metric-value">{{ result_count }}</p>
+        </article>
+    </section>
+
+    <section class="surface surface-pad">
+        <form class="toolbar" method="get">
+            <div class="toolbar-field">
+                <label for="id_q">Buscar por titulo</label>
+                <input id="id_q" type="text" name="q" value="{{ query }}" placeholder="Ex.: Planejar sprint semanal">
+            </div>
+            <div class="toolbar-field">
+                <label for="id_status">Status</label>
+                <select id="id_status" name="status">
+                    <option value="todas" {% if status == "todas" %}selected{% endif %}>Todas</option>
+                    <option value="pendentes" {% if status == "pendentes" %}selected{% endif %}>Pendentes</option>
+                    <option value="concluidas" {% if status == "concluidas" %}selected{% endif %}>Concluidas</option>
+                </select>
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn btn-primary" type="submit">Filtrar</button>
+                <a class="btn btn-ghost" href="{% url 'tarefas:lista' %}">Limpar</a>
+            </div>
+        </form>
+    </section>
 
     {% if tasks %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Titulo</th>
-                    <th>Descricao</th>
-                    <th>Status</th>
-                    <th>Acoes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks %}
-                    <tr>
-                        <td>{{ task.titulo }}</td>
-                        <td>{{ task.descricao|default:"Sem descricao" }}</td>
-                        <td>
+        <section class="task-grid">
+            {% for task in tasks %}
+                <article class="surface surface-pad task-card">
+                    <div class="task-card-head">
+                        <h2 class="task-title">{{ task.titulo }}</h2>
+                        {% if task.concluida %}
+                            <span class="status status-ok">Concluida</span>
+                        {% else %}
+                            <span class="status status-pendente">Pendente</span>
+                        {% endif %}
+                    </div>
+                    <p class="task-description">{{ task.descricao|default:"Sem descricao." }}</p>
+                    <p class="task-date">Criada em {{ task.criada_em|date:"d/m/Y H:i" }}</p>
+                    <div class="actions">
+                        <a class="btn btn-ghost btn-sm" href="{% url 'tarefas:detalhe' task.pk %}">Detalhes</a>
+                        <a class="btn btn-ghost btn-sm" href="{% url 'tarefas:editar' task.pk %}">Editar</a>
+                        <form class="inline-form" method="post" action="{% url 'tarefas:alternar_status' task.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
                             {% if task.concluida %}
-                                <span class="status status-ok">Concluida</span>
+                                <button class="btn btn-warning btn-sm" type="submit">Marcar pendente</button>
                             {% else %}
-                                <span class="status status-pendente">Pendente</span>
+                                <button class="btn btn-success btn-sm" type="submit">Marcar concluida</button>
                             {% endif %}
-                        </td>
-                        <td class="actions">
-                            <a class="btn" href="{% url 'tarefas:detalhe' task.pk %}">Detalhes</a>
-                            <a class="btn btn-secondary" href="{% url 'tarefas:editar' task.pk %}">Editar</a>
-                            <form class="inline-form" method="post" action="{% url 'tarefas:alternar_status' task.pk %}">
-                                {% csrf_token %}
-                                {% if task.concluida %}
-                                    <button class="btn btn-warning" type="submit">Marcar pendente</button>
-                                {% else %}
-                                    <button class="btn btn-success" type="submit">Marcar concluida</button>
-                                {% endif %}
-                            </form>
-                            <a class="btn btn-danger" href="{% url 'tarefas:excluir' task.pk %}">Excluir</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </form>
+                        <a class="btn btn-danger btn-sm" href="{% url 'tarefas:excluir' task.pk %}?next={{ request.get_full_path|urlencode }}">Excluir</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+
+        {% if is_paginated %}
+            <nav class="pagination surface surface-pad" aria-label="Paginacao">
+                <div class="pagination-meta">
+                    Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </div>
+                <div class="pagination-actions">
+                    {% if page_obj.has_previous %}
+                        <a class="btn btn-ghost btn-sm" href="?page=1{% if query_params %}&{{ query_params }}{% endif %}">Primeira</a>
+                        <a class="btn btn-ghost btn-sm" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">Anterior</a>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <a class="btn btn-ghost btn-sm" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">Proxima</a>
+                        <a class="btn btn-ghost btn-sm" href="?page={{ page_obj.paginator.num_pages }}{% if query_params %}&{{ query_params }}{% endif %}">Ultima</a>
+                    {% endif %}
+                </div>
+            </nav>
+        {% endif %}
     {% else %}
-        <p>Nenhuma tarefa cadastrada ainda.</p>
+        <section class="surface surface-pad empty-state">
+            <h2>Nenhuma tarefa encontrada</h2>
+            <p>Ajuste os filtros ou cadastre uma nova tarefa para comecar.</p>
+            <a class="btn btn-primary" href="{% url 'tarefas:criar' %}">Criar primeira tarefa</a>
+        </section>
     {% endif %}
 {% endblock %}

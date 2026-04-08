@@ -3,18 +3,24 @@
 {% block title %}Excluir tarefa{% endblock %}
 
 {% block content %}
-    <div class="topbar">
+    <section class="page-head">
         <div>
-            <h1>Excluir tarefa</h1>
-            <p>Esta acao nao pode ser desfeita.</p>
+            <h1 class="page-title">Excluir tarefa</h1>
+            <p class="page-subtitle">Revise antes de remover. Esta acao nao pode ser desfeita.</p>
         </div>
-        <a class="btn btn-secondary" href="{% url 'tarefas:lista' %}">Cancelar</a>
-    </div>
+        <a class="btn btn-ghost" href="{% url 'tarefas:lista' %}">Cancelar</a>
+    </section>
 
-    <p>Deseja realmente excluir a tarefa <strong>{{ object.titulo }}</strong>?</p>
+    <section class="surface surface-pad danger-zone">
+        <p>Deseja realmente excluir a tarefa <strong>{{ object.titulo }}</strong>?</p>
 
-    <form method="post">
-        {% csrf_token %}
-        <button class="btn-danger" type="submit">Confirmar exclusao</button>
-    </form>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ safe_next_url }}">
+            <div class="form-actions">
+                <a class="btn btn-ghost" href="{{ cancel_url }}">Manter tarefa</a>
+                <button class="btn btn-danger" type="submit" onclick="return confirm('Tem certeza que deseja excluir esta tarefa?');">Confirmar exclusao</button>
+            </div>
+        </form>
+    </section>
 {% endblock %}
